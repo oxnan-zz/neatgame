@@ -83,7 +83,6 @@ function create() {
 
 function update() {
     game.physics.arcade.collide(player, ground);
-
     // alignovelay(blackback)
     move()
 
@@ -154,7 +153,7 @@ function move(){
     if (cursors.up.isDown && player.body.onFloor() && game.time.now > jumpTimer)
     {
         jumping = 1;
-        player.body.velocity.y = -135;
+        player.body.velocity.y = -140;
         jumpTimer = game.time.now + 750;
     }
     if (cursors.down.isDown && jumping == 1 && !player.body.onFloor()){
@@ -164,7 +163,8 @@ function move(){
 
 }
 function alignovelay(blackback) {
-
+  blackback.body.x = player.body.x - (blackback.body.width/2)+(player.body.width/2);
+  blackback.body.y = player.body.y - (blackback.body.height/2)+(player.body.height/2);
 }
 var monsters = [];
 
