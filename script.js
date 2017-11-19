@@ -17,6 +17,8 @@ var jumpButton;
 var blackback;
 var jumping = 0;
 
+//Crystal vars///
+
 
 
 function preload() {
