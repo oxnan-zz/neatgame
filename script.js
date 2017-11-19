@@ -24,7 +24,7 @@ function preload() {
     game.load.image('tileset', './tile-ting/tileset.png');
     game.load.spritesheet('captain', 'assets/captain.png', 32, 32);
     game.load.image('background', 'assets/background2.png');
-    game.load.image('blackback', 'assets/blacknew.png');
+    game.load.image('blackback', 'assets/blacknew1.png',-3000,-3000);
     game.load.spritesheet('monster', 'assets/monster.png',26,32);
     game.load.spritesheet('crystal', 'assets/icecrystal.png', 22, 32);
     //Loading maps resources
@@ -82,11 +82,9 @@ function create() {
 }
 
 function update() {
-    game.physics.arcade.collide(crystal1, ground);
     game.physics.arcade.collide(player, ground);
-    blackback.body.x = player.body.x - (blackback.body.width/2)+(player.body.width/2);
-    blackback.body.y = player.body.y - (blackback.body.height/2)+(player.body.height/2);
-    alignovelay(blackback)
+
+    // alignovelay(blackback)
     move()
 
 }
