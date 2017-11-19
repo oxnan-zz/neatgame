@@ -18,8 +18,18 @@ var blackback;
 var jumping = 0;
 var weapon;
 var shoot;
+/////////////////////
 
-//Crystal vars///
+////////////////////////////
+var xlistC = [100, 200];
+var ylistC = [670, 400];
+
+var xlistM = [180];
+var ylistM = [700];
+
+var crystalgroup;
+var monstergroup;
+////////////////////////////
 
 
 
@@ -37,13 +47,6 @@ function preload() {
 
 
 }
-
-
-////////////////////
-
-//monster vars//////
-
-////////////////////
 
 function create() {
 
@@ -81,9 +84,21 @@ function create() {
     ///////////////////////////////////////////////////
 
     cursors = game.input.keyboard.createCursorKeys();
-    spawncrystal(132, 700, "crystal1")
 
-    game.camera.follow(player);
+    //spawn shit/////////
+    crystalgroup = game.add.group();
+    game.physics.arcade.enable(crystalgroup);
+    crystalgroup.collideWorldBounds = true;
+    crystalgroup.enableBody = true;
+
+    monstergroup = game.add.group();
+    game.physics.arcade.enable(monstergroup);
+    monstergroup.collideWorldBounds = true;
+    monstergroup.enableBody = true;
+
+    spawncrystals(xlistC, ylistC);
+    spawnmonsters(xlistM, ylistM);
+    /////////////////////
 
     //Weapon
     shoot = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR)
@@ -93,19 +108,15 @@ function create() {
     weapon.fireRate = 100;
     weapon.fireLimit = 5;
 
-
-
     weapon.bulletKillType = Phaser.Weapon.KILL_LIFESPAN;
     weapon.bulletLifespan = 500;
 
     // weapon.bulletLifespan = 0.1;
-
-
     weapon.trackSprite(player, 0, 0, true);
-
     game.physics.arcade.enable(weapon);
 
 
+    game.camera.follow(player);
 }
 
 function update() {
@@ -113,10 +124,15 @@ function update() {
     game.physics.arcade.collide(player, ground);
     game.physics.arcade.collide(weapon.bullets, ground, deleteBullet);
 
-
-
     // alignovelay(blackback)
-    move()
+    move();
+    /////////////////////////
+    game.physics.arcade.collide(crystalgroup, ground);
+    game.physics.arcade.collide(crystalgroup, player);
+
+    game.physics.arcade.collide(monstergroup, ground);
+    game.physics.arcade.collide(monstergroup, player, resetGame);
+    /////////////////////////
 
     if (shoot.isDown)
     {
@@ -198,31 +214,34 @@ function move(){
     }
 
 }
+
 function alignovelay(blackback) {
   blackback.body.x = player.body.x - (blackback.body.width/2)+(player.body.width/2);
   blackback.body.y = player.body.y - (blackback.body.height/2)+(player.body.height/2);
 }
-var monsters = [];
-
-function monsteradd(x, y, name) {
-  name = game.add.sprite(x, y, 'monster');
-  game.physics.enable(name, Phaser.Physics.ARCADE);
-  name.enableBody = true;
-  name.body.collideWorldBounds = true;
-  name.immovable = true;
-  monsters.push(name);
+function spawnmonsters(xlistM, ylistM) {
+  for (i = 0; i < xlistM.length; i++) {
+    spawnmonster(xlistM[i], ylistM[i], "monster" + i);
+  }
 }
 
-var crystals = [];
-
-function spawncrystal(x, y, name){
-  name = game.add.sprite(x, y, 'crystal')
-  game.physics.enable(name, Phaser.Physics.ARCADE);
-  name.enableBody = true;
-  name.body.collideWorldBounds = true;
-  crystals.push(name);
+function spawnmonster(x, y, monstername) {
+  var monster = monstergroup.create(x, y, 'monster');
 }
 
-function crystalcollision(crystal){
-  game.physics.arcade.collide(crystal, ground);
+
+
+function spawncrystals(xlistC, ylistC) {
+  for (i = 0; i < xlistC.length; i++) {
+    spawncrystal(xlistC[i], ylistC[i], "crystal" + i);
+  }
+}
+
+function spawncrystal(x, y, crystalname){
+  var crystal = crystalgroup.create(x, y, 'crystal');
+}
+
+
+function resetGame() {
+  //player.reset(0, 0);
 }
