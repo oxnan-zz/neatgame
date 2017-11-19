@@ -15,6 +15,7 @@ var jumpTimer = 0;
 var cursors;
 var jumpButton;
 var blackback;
+var jumping = 0;
 
 
 
@@ -23,8 +24,9 @@ function preload() {
     game.load.image('tileset', './tile-ting/tileset.png');
     game.load.spritesheet('captain', 'assets/captain.png', 32, 32);
     game.load.image('background', 'assets/background2.png');
-    game.load.image('blackback', 'assets/black.png');
-
+    game.load.image('blackback', 'assets/blacknew.png');
+    game.load.spritesheet('monster', 'assets/monster.png',26,32);
+    game.load.spritesheet('crystal', 'assets/icecrystal.png', 22, 32);
     //Loading maps resources
 
 
@@ -48,7 +50,7 @@ function create() {
 
     ground.resizeWorld();
     map.setCollisionBetween(0, 1000000, true, '2');
-    
+
 
 
 
@@ -56,15 +58,15 @@ function create() {
 
     game.time.desiredFps = 30;
 
-    game.physics.arcade.gravity.y = 200;
+    game.physics.arcade.gravity.y = 100;
 
     //player///////////////////////////////////////////
     player = game.add.sprite(100, 600, 'captain');
     game.physics.arcade.enable(player);
     blackback = game.add.sprite(2048,2048,'blackback');
     game.physics.enable(blackback, Phaser.Physics.ARCADE);
-    player.body.bounce.y = 0.2;
-        
+    player.body.bounce.y = 0.1;
+
     player.body.acceleration = 0.1;
 
     player.body.collideWorldBounds = true;
@@ -74,12 +76,13 @@ function create() {
     ///////////////////////////////////////////////////
 
     cursors = game.input.keyboard.createCursorKeys();
+    spawncrystal(132, 700, "crystal1")
 
     game.camera.follow(player);
 }
 
 function update() {
-
+    game.physics.arcade.collide(crystal1, ground);
     game.physics.arcade.collide(player, ground);
     blackback.body.x = player.body.x - (blackback.body.width/2)+(player.body.width/2);
     blackback.body.y = player.body.y - (blackback.body.height/2)+(player.body.height/2);
@@ -90,7 +93,7 @@ function update() {
 
 function render() {
 
-    game.debug.text(game.time.suggestedFps, 32, 32);
+    // game.debug.text(game.time.suggestedFps, 32, 32);
 
     // game.debug.text(game.time.physicsElapsed, 32, 32);
     // game.debug.body(player);
@@ -113,7 +116,7 @@ function move(){
 
     if (cursors.left.isDown)
     {
-        player.body.velocity.x = -150;
+        player.body.velocity.x = -100;
 
         if (facing != 'left')
         {
@@ -123,7 +126,7 @@ function move(){
     }
     else if (cursors.right.isDown)
     {
-        player.body.velocity.x = 150;
+        player.body.velocity.x = 100;
 
         if (facing != 'right')
         {
@@ -152,19 +155,40 @@ function move(){
 
     if (cursors.up.isDown && player.body.onFloor() && game.time.now > jumpTimer)
     {
-        player.body.velocity.y = -250;
+        jumping = 1;
+        player.body.velocity.y = -135;
         jumpTimer = game.time.now + 750;
     }
-    if (cursors.down.isDown && !player.body.onFloor()){
-      currentYvelocity = player.body.velocity.y;
-      player.body.velocity.y = +250;
-    } 
+    if (cursors.down.isDown && jumping == 1 && !player.body.onFloor()){
+      jumping = 0;
+      player.body.velocity.y = +140;
+    }
+
 }
 function alignovelay(blackback) {
 
 }
+var monsters = [];
 
-function monsteradd(x, y, name, boundsleft, boundsright) {
-  name = game.add.sprite(32, 32, 'monster');
+function monsteradd(x, y, name) {
+  name = game.add.sprite(x, y, 'monster');
   game.physics.enable(name, Phaser.Physics.ARCADE);
+  name.enableBody = true;
+  name.body.collideWorldBounds = true;
+  name.immovable = true;
+  monsters.push(name);
+}
+
+var crystals = [];
+
+function spawncrystal(x, y, name){
+  name = game.add.sprite(x, y, 'crystal')
+  game.physics.enable(name, Phaser.Physics.ARCADE);
+  name.enableBody = true;
+  name.body.collideWorldBounds = true;
+  crystals.push(name);
+}
+
+function crystalcollision(crystal){
+  game.physics.arcade.collide(crystal, ground);
 }
