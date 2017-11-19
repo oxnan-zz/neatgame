@@ -18,6 +18,8 @@ var blackback;
 var jumping = 0;
 var weapon;
 var shoot;
+var ammo = 15;
+var ammotext;
 /////////////////////
 
 ////////////////////////////
@@ -31,15 +33,25 @@ var crystalgroup;
 var monstergroup;
 ////////////////////////////
 
+var crystalsCollected = 0;
+var scoreText;
+
+//var monster;
+var monsterFacing;
+
 
 
 function preload() {
     game.load.tilemap('tilemap', './tile-ting/tilemap.json', null, Phaser.Tilemap.TILED_JSON);
     game.load.image('tileset', './tile-ting/tileset.png');
     game.load.spritesheet('captain', 'assets/captain.png', 32, 32);
+    game.load.spritesheet('monstersprite', 'assets/monstersprite.png', 32, 32);
     game.load.image('background', 'assets/background2.png');
     game.load.image('blackback', 'assets/blacknew1.png',-3000,-3000);
-    game.load.image('bullet', 'assets/bullet.png', 32, 32)
+    game.load.image('gameover', 'assets/gameover.png',800,600);
+    game.load.image('victory', 'assets/winning.png',-3000,-3000);
+
+    game.load.image('bullet', 'assets/bullet.png', 32, 32);
     game.load.spritesheet('monster', 'assets/monster.png',26,32);
     game.load.spritesheet('crystal', 'assets/icecrystal.png', 22, 32);
     //Loading maps resources
@@ -83,7 +95,14 @@ function create() {
     player.animations.add('right', [1], 10, true);
     ///////////////////////////////////////////////////
 
+
     cursors = game.input.keyboard.createCursorKeys();
+
+    scoreText = game.add.text(16, 16, 'Crystals collected: 0/10', { fontSize: '25px', fill: '#ffce00' });
+    scoreText.fixedToCamera = true;
+
+    ammoText = game.add.text(16, 30, 'Ammo left: ' + ammo + '/15', { fontSize: '25px', fill: '#ffce00' });
+    scoreText.fixedToCamera = true;
 
     //spawn shit/////////
     crystalgroup = game.add.group();
@@ -98,6 +117,10 @@ function create() {
 
     spawncrystals(xlistC, ylistC);
     spawnmonsters(xlistM, ylistM);
+
+    //monster.animations.add('left', [1], 10, true);
+    //monster.animations.add('right', [2], 10, true);
+
     /////////////////////
 
     //Weapon
@@ -106,7 +129,7 @@ function create() {
 
     weapon.bulletSpeed = 600;
     weapon.fireRate = 100;
-    weapon.fireLimit = 5;
+    weapon.fireLimit = 15;
 
     weapon.bulletKillType = Phaser.Weapon.KILL_LIFESPAN;
     weapon.bulletLifespan = 500;
@@ -128,15 +151,19 @@ function update() {
     move();
     /////////////////////////
     game.physics.arcade.collide(crystalgroup, ground);
-    game.physics.arcade.collide(crystalgroup, player);
+    game.physics.arcade.collide(crystalgroup, player, crystalKillandCount, null, this);
 
     game.physics.arcade.collide(monstergroup, ground);
+    game.physics.arcade.collide(monstergroup, weapon.bullets, killMonster, null, this);
     game.physics.arcade.collide(monstergroup, player, resetGame);
+
+    //displayImage();
     /////////////////////////
 
     if (shoot.isDown)
     {
         weapon.fire();
+        ammo -= 1;
     }
 
 }
@@ -158,6 +185,13 @@ function deleteBullet() {
 
 function resetAmmo() {
   Weapon.resetShots;
+}
+
+
+function ammoControl() {
+  setInterval(function(){
+    weapon.resetShots()
+}, 15000);
 }
 
 function move(){
@@ -226,9 +260,12 @@ function spawnmonsters(xlistM, ylistM) {
 }
 
 function spawnmonster(x, y, monstername) {
-  var monster = monstergroup.create(x, y, 'monster');
-}
+  monster = monstergroup.create(x, y, 'monstersprite');
 
+  monsterTween = game.add.tween(monster).to({
+        x: monster.x + 100
+  }, 750, 'Linear', true, 0, 150, true);
+}
 
 
 function spawncrystals(xlistC, ylistC) {
@@ -242,6 +279,31 @@ function spawncrystal(x, y, crystalname){
 }
 
 
+function crystalKillandCount(player, crystal) {
+  crystal.kill();
+  crystalsCollected += 1;
+
+  scoreText.text = 'Crystals collected: ' + crystalsCollected + '/17';
+
+  if (crystalsCollected == 17) {
+    victory();
+  }
+}
+
+function victory() {
+    victory = game.add.sprite(0,435,'victory');
+}
+
+function ulost() {
+    gameover = game.add.sprite(0,435,'gameover');
+}
+
 function resetGame() {
-  //player.reset(0, 0);
+  crystalsCollected = 0;
+  ulost();
+}
+
+function killMonster(bullet, monster) {
+  monster.kill();
+  bullet.kill();
 }
