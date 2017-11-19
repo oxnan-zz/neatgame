@@ -16,6 +16,8 @@ var cursors;
 var jumpButton;
 var blackback;
 var jumping = 0;
+var weapon;
+var shoot;
 
 //Crystal vars///
 
@@ -27,6 +29,7 @@ function preload() {
     game.load.spritesheet('captain', 'assets/captain.png', 32, 32);
     game.load.image('background', 'assets/background2.png');
     game.load.image('blackback', 'assets/blacknew1.png',-3000,-3000);
+    game.load.image('bullet', 'assets/bullet.png', 32, 32)
     game.load.spritesheet('monster', 'assets/monster.png',26,32);
     game.load.spritesheet('crystal', 'assets/icecrystal.png', 22, 32);
     //Loading maps resources
@@ -81,12 +84,44 @@ function create() {
     spawncrystal(132, 700, "crystal1")
 
     game.camera.follow(player);
+
+    //Weapon
+    shoot = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR)
+    weapon = game.add.weapon(1, 'bullet')
+
+    weapon.bulletSpeed = 600;
+    weapon.fireRate = 100;
+    weapon.fireLimit = 5;
+
+
+
+    weapon.bulletKillType = Phaser.Weapon.KILL_LIFESPAN;
+    weapon.bulletLifespan = 500;
+
+    // weapon.bulletLifespan = 0.1;
+
+
+    weapon.trackSprite(player, 0, 0, true);
+
+    game.physics.arcade.enable(weapon);
+
+
 }
 
 function update() {
+
     game.physics.arcade.collide(player, ground);
+    game.physics.arcade.collide(weapon.bullets, ground, deleteBullet);
+
+
+
     // alignovelay(blackback)
     move()
+
+    if (shoot.isDown)
+    {
+        weapon.fire();
+    }
 
 }
 
@@ -100,14 +135,13 @@ function render() {
 
 }
 
-function createLevelMap(level) {
-  map = game.add.tilemap('tilemap' + level);
-  map.addTilesetImage('tileset' + level, level);
+function deleteBullet() {
+  console.log("jkjkdf")
+  weapon.killAll()
+}
 
-  backgroundLayer = map.createLayer('Background');
-  groundLayer = map.createLayer('Ground');
-
-  map.setCollisionBetween(1, 100000, true, 'Ground');
+function resetAmmo() {
+  Weapon.resetShots;
 }
 
 function move(){
